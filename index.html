@@ -5,40 +5,46 @@
 		<title></title>
 	</head>
 	<body>
-		<form id="form">
-			<label>Image</label>
-			<input type="file" name="image" required /><br />
-			<select id="select">
-				<option value="Earthquake">Earthquake</option>
-				<option value="Heat" selected>Heat</option>
-				<option value="Polar">Polar</option>
-				<option value="Thunderstorm">Thunderstorm</option>
-				<option value="Tornadoes">Tornadoes</option>
-			</select>
-		</form>
 		<button type="button" id="submit">Send</button>
 <script>
-const form = document.querySelector('#form');
+const toDataURL = (src, callback, outputFormat) => {
+	const img = new Image();
+	img.crossOrigin = 'Anonymous';
+	img.onload = function() {
+		const canvas = document.createElement('canvas');
+		const ctx = canvas.getContext('2d');
+		let dataURL;
+		canvas.height = this.naturalHeight;
+		canvas.width = this.naturalWidth;
+		ctx.drawImage(this, 0, 0);
+		dataURL = canvas.toDataURL(outputFormat);
+		callback(dataURL);
+	};
+	img.src = src;
+};
+
 const submit = document.querySelector('#submit');
-const select = document.querySelector('#select');
 submit.addEventListener('click', e => {
-	const data = new FormData(form);
-	data.append('disaster', select.options[select.selectedIndex].value);
-	fetch('https://thunderapi.thinkingboxserver.ca/api/1/download', {
-		method: 'POST',
-		body: data,
-	})
-		.then(response => response.blob())
-		.then(blob => {
-			const url = window.URL.createObjectURL(blob);
-			const a = document.createElement('a');
-			a.href = url;
-			a.download = 'Geostorm.mp4';
-			a.click();
+	toDataURL('test.png', dataUrl => {
+		const data = new FormData();
+		data.append('disaster', 'Polar');
+		data.append('image', dataUrl);
+		fetch('https://thunderapi.thinkingboxserver.ca/api/1/download', {
+			method: 'POST',
+			body: data,
 		})
-		.catch(err => {
-			console.log(err);
-		});
+			.then(response => response.blob())
+			.then(blob => {
+				const url = window.URL.createObjectURL(blob);
+				const a = document.createElement('a');
+				a.href = url;
+				a.download = 'Geostorm.mp4';
+				a.click();
+			})
+			.catch(err => {
+				console.log(err);
+			});
+	});
 });
 </script>
 	</body>
